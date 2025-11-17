@@ -1,8 +1,8 @@
-# ICU Rennes – Dynamic Urban Heat Visualization (2018)
-
-![Banner](banner.png)
+# :city_sunrise: ICU Rennes – Dynamic Urban Heat Visualization (2018) 
 
 This repository hosts a minimal but functional prototype exploring urban heat island dynamics in Rennes (France) using temperature measurements from a subset of stations available for the year 2018.
+
+<img src="banner.png" width="220"/>
 
 The application allows:
 - visualization of raw temperature measurements at each station,
@@ -17,3 +17,4 @@ All methodological details, assumptions, data choices, and limitations are docum
 https://icu-rennes-visualization.streamlit.app/
 
 Feedback or suggestions for improvement are welcome! :wink:
+
