@@ -110,7 +110,7 @@ def m_to_deg(dx, dy, lon0=lon0, lat0=lat0):
     return lon, lat
 
 
-def create_UHI_overlay_image(grid_lon, grid_lat, Z):
+def create_uhi_overlay_image(grid_lon, grid_lat, Z):
     """
     Create a transparent UHI PNG with contours,
     to be used as an overlay layer in Mapbox.
@@ -1361,6 +1361,7 @@ to improving knowledge anddesigning decision-making tools that are better
 suited to the challenges ahead.
 """
 )
+
 
 
 
