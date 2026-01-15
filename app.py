@@ -338,10 +338,10 @@ summer_stats = summer_stats.sort_values(
     ascending=False,
 )
 
-rural_stats = summer_stats[summer_stats["Type"] == "Rurale"].reset_index(
+rural_stats = summer_stats[summer_stats["Type"] == "Rural"].reset_index(
     drop=True
 )
-urban_stats = summer_stats[summer_stats["Type"] == "Urbaine"].reset_index(
+urban_stats = summer_stats[summer_stats["Type"] == "Urban"].reset_index(
     drop=True
 )
 
@@ -369,14 +369,14 @@ urban_presence = daily_presence[~daily_presence.index.isin(rural_stations)]
 col_rural, col_urban = st.columns(2)
 
 with col_rural:
-    st.subheader("Stations rurales")
+    st.subheader("Rural stations")
     st.dataframe(
         rural_stats.style.format({"Completude_rate": "{:.1f}%"}),
         use_container_width=True,
     )
 
 with col_urban:
-    st.subheader("Stations urbaines")
+    st.subheader("Urban stations")
     st.dataframe(
         urban_stats.style.format({"Completude_rate": "{:.1f}%"}),
         use_container_width=True,
@@ -1361,5 +1361,6 @@ to improving knowledge anddesigning decision-making tools that are better
 suited to the challenges ahead.
 """
 )
+
 
 
