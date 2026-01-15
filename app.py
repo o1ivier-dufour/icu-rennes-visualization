@@ -18,40 +18,39 @@ st.title("Analyse ICU Rennes 2018")
 
 st.markdown(
     """
-En voyant les visualisations proposées sur le site du
-[Rennes Urban Climate Network (RUN)](https://run.letg.cnrs.fr/), notamment
-le GIF qui montre l’évolution de l’îlot de chaleur urbain au fil de la
-journée, je me suis demandé ce que donnerait une version interactive de
-ces cartes : quelque chose qui permette de choisir l’heure, de zoomer et
-d’explorer plus finement la mise en place de l’ICU.
+When I saw the visualizations on the
+[Rennes Urban Climate Network (RUN)](https://run.letg.cnrs.fr/) website, particularly
+the GIF showing the evolution of the urban heat island throughout the
+day, I wondered what an interactive version of
+these maps would look like: something that would allow users to choose the time, zoom in, and
+explore the ICU's development in greater detail.
 
-J’ai récupéré les mesures horaires de température pour l’année 2018
+I retrieved the hourly temperature measurements for 2018
 ([dataset](https://www.easydata.earth/#/public/metadata/260c9e6b-d9d9-4559-b6ee-6e10ef1f7a13)).
-Aujourd’hui, le réseau est beaucoup plus dense, mais ces données offrent
-déjà une bonne base pour explorer la dynamique de l’ICU.
+Today, the network is much denser, but these data already provide
+a good basis for exploring the dynamics of the UHI.
 
-Je me suis concentré sur la période de juin à août, là où les contrastes
-urbain/rural sont les plus marqués. Pour isoler l’effet réellement urbain,
-j’ai séparé les stations en deux groupes : urbaines et rurales.
+I focused on the period from June to August, when the contrasts between urban
+and rural areas are most pronounced. To isolate the actual urban effect,
+I divided the stations into two groups: urban and rural.
 
-Dans l’étude de
-[Dubreuil et al. (2020)](https://climatology.edpsciences.org/articles/climat/full_html/2020/01/climat20201706/climat20201706.html),
-l’ICU est calculé à partir d’une station rurale unique (*Melesse*).
 
-De mon côté, j’ai choisi d’utiliser la moyenne de plusieurs stations
-situées en marge de la zone densément urbanisée. Ce choix me semblait
-intéressant pour limiter l’impact potentiel d’une station isolée
-présentant un comportement particulier (ombrage local, exposition,
-configuration du terrain…).
+In the
+[Dubreuil and al. (2020)](https://climatology.edpsciences.org/articles/climat/full_html/2020/01/climat20201706/climat20201706.html)
+study, the ICU is calculated based on a single rural station (*Melesse*).
 
-Avant d’aller plus loin, j’ai vérifié la complétude des mesures sur tout
-l’été. Les stations rurales présentent globalement une bonne couverture, ce qui
-est essentiel pour disposer d’une référence stable.  
-Côté stations urbaines, la complétude est plus variable : certaines ont
-beaucoup de données, d’autres un peu moins.
+For my part, I chose to use the average of several stations
+located on the edge of the densely urbanized area. This choice seemed
+interesting to me in order to limit the potential impact of an isolated station
+with particular characteristics (local shading, exposure, terrain configuration, etc.).
 
-J’ai conservé l’ensemble du réseau tel qu’il existait en 2018, en gardant
-naturellement ces limites en tête.
+Before going any further, I checked the completeness of the measurements throughout
+the summer. Rural stations generally provide good coverage, whichis essentia
+l for a stable reference.  As for urban stations, completeness is more variable:
+some havea lot of data, others a little less.
+
+I have kept the entire network as it existed in 2018, naturally keeping
+these limitations in mind.
 """
 )
 
@@ -404,20 +403,18 @@ plot_presence_heatmap(
 
 st.markdown(
     """
-Pour avoir un premier aperçu spatial, je me suis concentré sur une seule
-journée d’été : celle où les stations rurales enregistrent en moyenne
-leurs températures maximales les plus élevées. Autrement dit, pour chaque
-jour, je regarde le maximum atteint dans chaque station rurale et j’en
-prends la moyenne ; le jour retenu est celui où cette moyenne est la plus
-forte.
+To get an initial spatial overview, I focused on a single
+summer day: the day when rural stations record their highest average
+maximum temperatures. In other words, for each
+day, I look at the maximum reached at each rural station and take
+the average; the day chosen is the one with the highest
+average.
 
-Ce choix permet de sélectionner une journée réellement chaude à l’échelle
-régionale, en se basant sur la masse d’air de fond plutôt que sur des
-effets locaux.
+This choice allows me to select a day that is truly hot on a regional scale,
+based on the underlying air mass rather than local effects.
 
-Sur cette journée, j’affiche ensuite les températures mesurées aux
-stations sur une carte, avec un slider pour suivre l’évolution heure par
-heure.
+On this day, I then display the temperatures measured at the stations
+on a map, with a slider to track the evolution hour by hour.
 """
 )
 
@@ -633,40 +630,40 @@ if len(rural_with_temp) > 0:
 
 st.markdown(
     r"""
-Pour obtenir ensuite une représentation plus continue de l’ICU dans
-l’espace, j’ai utilisé l’interpolation de scikit-learn basée sur un
-Gaussian Process avec un noyau RBF. Cette approche produit un champ lissé,
-où l’influence d’une station décroît avec la distance. Le noyau utilisé
-est :
+To obtain a more continuous representation of the ICU in
+space, I used scikit-learn interpolation based on a
+Gaussian Process with an RBF kernel. This approach produces a smoothed field,
+where the influence of a station decreases with distance. The kernel used
+is:
 
 $$
 k(x,x') = \exp\!\left(-\frac{\|x - x'\|^2}{2\ell^2}\right) + \sigma_n^2
 $$
 
-Ici, $x$ désigne la position d’une station (où l’ICU est mesuré), et $x'$
-la position où l’on souhaite estimer l’ICU sur la grille interpolée. Le
-paramètre $\ell$ contrôle la distance sur laquelle l’ICU varie, et
-$\sigma_n^2$ ajoute un léger bruit pour tenir compte des écarts locaux
-entre stations.
+Here, $x$ denotes the position of a station (where the ICU is measured), and $x'$
+the position where we want to estimate the ICU on the interpolated grid. The
+parameter $\ell$ controls the distance over which the ICU varies, and
+$\sigma_n^2$ adds a slight noise to account for local differences
+between stations.
 """
 )
 
 st.markdown(
     """
-Visuellement, le résultat est intéressant : l’interpolation fait apparaître
-une structure cohérente avec ce que l’on attend d’un îlot de chaleur
-urbain, avec des contrastes qui se dessinent de manière lisible dans
-l’espace.
+Visually, the result is interesting: the interpolation reveals
+a structure consistent with what one would expect from an urban heat island,
+with contrasts that are clearly visible in
+space.
 
-Si l’on regarde de plus près : au cœur de la nuit, l’îlot de chaleur
-apparaît nettement marqué ; au petit matin, les contrastes se réduisent
-progressivement ; puis, en milieu d’après-midi, on observe à nouveau une
-zone chaude plus concentrée, moins diffuse que durant la nuit.
+Looking more closely: in the middle of the night, the heat island
+appears clearly marked; in the early morning, the contrasts gradually
+diminish; then, in the middle of the afternoon, we again observe a
+more concentrated hot zone, less diffuse than during the night.
 
-Cette cohérence générale est encourageante, mais l’ensemble doit tout de
-même être interprété avec précaution : le réseau de stations étant peu
-dense, l’interpolation donne une idée des contrastes spatiaux, sans pouvoir
-capturer finement les variations locales.
+This overall consistency is encouraging, but the data must still be
+interpreted with caution: as the network of stations is not very dense,
+interpolation gives an idea of spatial contrasts without being able to
+capture local variations in detail.
 """
 )
 
@@ -920,51 +917,55 @@ with col_anim:
 
 st.markdown(
     r"""
-Au-delà des cartes horaires, il peut aussi être intéressant de repérer les
-zones qui restent régulièrement chaudes, et pas seulement celles qui
-apparaissent fortes à un moment précis. Les points chauds ne se situent pas
-forcément au même endroit entre le jour et la nuit, car les mécanismes en
-jeu ne sont pas les mêmes : en journée, l’ensoleillement et le chauffage
-des surfaces dominent, alors qu’au cœur de la nuit, c’est surtout la
-restitution de la chaleur stockée qui structure l’îlot de chaleur. À cela
-s’ajoutent des facteurs locaux comme la ventilation ou la morphologie
-urbaine, qui peuvent également déplacer les maxima.
+Beyond the hourly maps, it may also be useful to identify the
+areas that remain consistently hot, and not just those that
+appear intense at a specific time. Hot spots are not necessarily located
+in the same place between day and night, because the mechanisms at
+play are not the same: during the day, sunlight and surface heating
+dominate, while in the middle of the night, it is mainly the
+release of stored heat that structures the heat island. Added to this
+are local factors such as ventilation and urban morphology,
+ which can also shift the maxima.
 
-Pour approcher des zones plus persistantes, j’ai donc d’abord séparé les
-heures de jour et de nuit, puis j’ai choisi de cumuler les ICU interpolés
-sur les dix jours les plus chauds. Dix jours me paraissaient un bon ordre
-de grandeur : assez pour lisser les variations d’un jour à l’autre, sans
-aller vers une moyenne trop large ou diluée dans le temps.
+To identify more persistent areas, I first separated
+daytime and nighttime hours, then chose to combine the ICUs interpolated
+over the ten hottest days. Ten days seemed to me to be a good order of
+magnitude: enough to smooth out day-to-day variations without
+going too far toward an average that is too broad or diluted over time.
 
-Pour chaque point $x$ de la grille, je calcule ensuite une moyenne sur
-l’ensemble des instants retenus :
+For each point $x$ on the grid, I then calculate an average over
+all the selected time points:
 
 $$
 ICU_{\text{moy}}(x) = \frac{1}{N} \sum_{t=1}^{N} ICU_t(x)
 $$
 
-où $ICU_t(x)$ est l’ICU interpolé au point $x$ à l’instant $t$, et $N$ le
-nombre total d’heures considérées (jour ou nuit) sur les jours les plus
-chauds. Cette moyenne permet de faire ressortir les zones où l’ICU est à la
-fois élevé et récurrent, autrement dit les points chauds typiques du jour
-et de la nuit.
+where $ICU_t(x)$ is the ICU interpolated at point $x$ at time $t$, and $N$ is
+the total number of hours considered (day or night) on the hottest days.
+This average highlights areas where the ICU is both high and recurrent,
+in other words, typical hot spots during the day and night..
 
-Ces cartes donnent surtout un instantané visuel clair, qui aide à repérer
-les secteurs les plus souvent exposés. Mais avec le réseau de stations
-actuel qui est bien plus complet, ce type de représentation pourrait
-devenir très informatif, au point de constituer une base solide pour
-appuyer certaines décisions.
+These maps primarily provide a clear visual snapshot, which helps identify
+the areas most frequently exposed. However, with the current network of stations
+being much more comprehensive, this type of representation could
+become highly informative, to the point of providing a solid basis for
+supporting certain decisions.
 """
 )
 
 st.markdown(r"""
-**Analyse – ICU de jour**
+**Analysis – Daytime UHI**
 
-En journée, l’ICU reste globalement faible, ce qui correspond bien à la littérature : les contrastes urbain/rural sont limités tant que l’inertie thermique de la ville ne joue pas pleinement et que la restitution de chaleur n’a pas encore commencé. L’hypercentre ressort néanmoins clairement, en cohérence avec les observations classiques.
+During the day, the UHI remains generally weak, which is consistent with
+the literature: urban/rural contrasts are limited as long as the thermal inertia
+of the city is not fully effective and heat release has not yet begun. 
+However, the city center stands out clearly, in line with conventional observations.
 
-Deux petites zones apparaissent aussi, notamment au-dessus du parc des Gayeulles, ce qui est moins intuitif pour un secteur végétalisé. Cela tient probablement à la faible densité du réseau : la position des stations influence localement l’interpolation et peut faire émerger des motifs qui ne reflètent pas toujours parfaitement la réalité.
+Two small areas also appear, notably above Gayeulles Park, which is less intuitive for a green area.
+This is probably due to the low density of the network: the position of the stations influences
+the interpolation locally and can reveal patterns that do not always perfectly reflect reality.
 
-Dans l’ensemble, la lecture est cohérente sur le centre-ville, mais certains détails périphériques doivent être interprétés avec prudence, compte tenu du nombre limité de points de mesure.
+Overall, the reading is consistent for the city center, but certain peripheral details should be interpreted with caution, given the limited number of measurement points.
 """)
 
 day_hours = list(range(9, 19))
@@ -1259,28 +1260,28 @@ plot_cumulative_overlay(
 
 st.markdown(
     """
-**Analyse – ICU de nuit**
+**Analysis – Night ICU**
 
-La nuit, l’ICU se renforce nettement, ce qui est cohérent avec ce que
-décrit la littérature — notamment l’étude de
-[Dubreuil et al.(2020)](https://climatology.edpsciences.org/articles/climat/full_html/2020/01/climat20201706/climat20201706.html)
-sur les nuits d’été à Rennes. Une fois le rayonnement solaire arrêté, les
-surfaces urbaines restituent la chaleur accumulée, et c’est généralement à
-ce moment-là que le contraste urbain/rural atteint son maximum.
+At night, the ICU increases significantly, which is consistent with what
+is described in the literature—notably the study by
+[Dubreuil and al. (2020)](https://climatology.edpsciences.org/articles/climat/full_html/2020/01/climat20201706/climat20201706.html)
+on summer nights in Rennes. Once solar radiation stops,
+urban surfaces release the accumulated heat, and it is generally at
+this point that the urban/rural contrast reaches its maximum.
 
-Sur la carte moyenne, le cœur de l’îlot reste bien fixé sur l’hypercentre,
-en ligne avec les résultats présentés dans l’article. On observe également
-une extension vers le sud, un motif qui reflète assez clairement la
-distribution des stations: contrairement à ce qui se passait en
-journée, ce n’est pas un point isolé qui oriente l’interpolation, mais
-plusieurs stations qui tirent la structure dans cette direction. Avec un
-réseau plus dense, on verrait sans doute une extension un peu plus
-affirmée vers le nord aussi, ce que la littérature suggère déjà.
+On the average map, the center of the block remains firmly fixed on the hypercenter,
+in line with the results presented in the article. We also observe
+an extension towards the south, a pattern that fairly clearly reflects the
+distribution of stations: unlike what happened during the
+day, it is not an isolated point that guides the interpolation, but
+several stations that pull the structure in this direction. With a
+denser network, we would undoubtedly see a slightly more
+pronounced extension to the north as well, which is already suggested in the literature.
 
-L’organisation générale de la carte est donc cohérente avec ce qu’on
-attend d’un îlot de chaleur nocturne marqué. Les détails fins restent à
-considérer avec prudence, mais l’équilibre global apparaît solide compte
-tenu du nombre de stations disponibles.
+The overall organization of the map is therefore consistent with what
+is expected of a marked nocturnal heat island. The fine details should
+still be considered with caution, but the overall balance appears solid 
+given the number of stations available.
 """
 )
 
@@ -1304,66 +1305,62 @@ st.markdown(
     """
 **Conclusion**
 
-Ce prototype propose une première visualisation des îlots de chaleur à
-Rennes durant l’été 2018, en se concentrant sur les journées les plus
-chaudes de la période juin–août. Les cartes obtenues permettent déjà
-d’illustrer simplement le phénomène : elles mettent en évidence les
-contrastes jour/nuit, révèlent des points chauds récurrents et offrent un
-aperçu visuel clair, utile pour quelqu’un qui découvre le sujet. Les
-résultats vont d’ailleurs globalement dans le même sens que ceux décrits
-dans la littérature, ce qui est encourageant.
+This prototype provides an initial visualization of heat islands in
+Rennes during the summer of 2018, focusing on the hottest days of the
+June–August period. The maps obtained already provide a simple illustration
+of the phenomenon: they highlight the day/night contrasts, reveal recurring
+hot spots, and offer a clear visual overview that is useful for someone new
+to the subject. The results are broadly consistent with those described
+in the literature, which is encouraging.
 
-Dans ce travail, je n’ai utilisé que les températures horaires issues des
-23 stations disponibles en 2018. C’est un sous-ensemble du réseau RUN, qui
-aujourd’hui combine plusieurs types de capteurs : des stations automatiques
-DAVIS mesurant au minimum la température, l’humidité relative, le vent, la
-pluie et la pression (parfois le rayonnement), et un réseau plus dense de
-capteurs LoRaWAN enregistrant température et humidité. Toutes les stations
-ne mesurent pas l’ensemble de ces variables, mais le réseau fournit tout de
-même une base beaucoup plus riche que celle exploitée ici.
+In this work, I only used hourly temperatures from the23 stations available in 2018.
+This is a subset of the RUN network, which now combines several types of sensors:
+automaticmeasuring at least temperature, relative humidity, wind,rain, and pressure
+(sometimes radiation), and a denser network of LoRaWAN sensors recording temperature
+and humidity. Not all stations measure all of these variables, but the network still
+provides a much richer basis than the one used here.
 
-Une suite naturelle consisterait donc à mobiliser ces données
-complémentaires pour analyser des combinaisons de facteurs plus fines :
-par exemple repérer les situations les plus défavorables (peu de vent,
-ciel clair, faible humidité, végétation limitée), ou comprendre comment
-les caractéristiques du bâti et de la végétation structurent réellement
-l’ICU. On pourrait aussi croiser ces cartes avec d’autres sources : champs
-météorologiques plus larges, imagerie satellitaire (indices de végétation,
-thermique), ou classifications du bâti et de la végétation issues des
-données IGN.
+A natural next step would therefore be to use this additional data
+to analyze more detailed combinations of factors:
+for example, identifying the most unfavorable situations (low wind,
+clear skies, low humidity, limited vegetation), or understanding how
+the characteristics of buildings and vegetation actually structure
+the ICU. These maps could also be cross-referenced with other sources: broader
+meteorological fields, satellite imagery (vegetation indices, thermal), or
+classifications of buildings and vegetation derived from IGN data.
 
-À mesure que l’on combine ces informations, des approches statistiques, de
-machine learning ou même de deep learning pourraient devenir pertinentes —
-non pas pour remplacer le travail des urbanistes, mais pour leur fournir
-des outils plus riches. L’idée serait qu’ils puissent interagir eux-mêmes
-avec les données, explorer différents réglages, lancer leurs propres
-analyses et bénéficier d’indicateurs plus précis pour appuyer leurs choix.
-À plus long terme, on peut même imaginer un volet de modélisation, où ils
-pourraient tester différents scénarios d’aménagement ou d’adaptation pour
-comparer leurs effets sur l’îlot de chaleur.
+As this information is combined, statistical approaches, machine learning,
+or even deep learning could become relevant—not to replace the work
+of urban planners, but to provide them with more powerful tools.
+The idea would be for them to interact with the data themselves,
+explore different settings, run their own analyses, and benefit from more
+accurate indicators to support their choices.In the longer term, we could
+even imagine a modeling component, where they could test different development
+or adaptation scenarios to compare their effects on the heat island.In the longer
+term, we can even imagine a modeling component, where they could test different
+development or adaptation scenarios to compare their effects on the heat island.
 
-L’enjeu final est de contribuer à rendre la ville plus vivable lors des
-épisodes de chaleur estivale, en particulier pour les populations les plus
-vulnérables. On sait que les canicules s’accompagnent d’une surmortalité
-marquée, notamment chez les personnes âgées : disposer d’outils plus
-précis, interactifs et adaptés aux besoins des professionnels pourrait
-participer à limiter ces impacts.
+The ultimate goal is to help make cities more livable during summer heat waves,
+especially for the most vulnerable populations. We know that heat waves are
+associated with significantly higher mortality rates, particularly among the elderly.
+Having more accurate, interactive tools tailored to the needs of professionals could
+help limit these impacts.
 
-Au-delà de l’aspect opérationnel, une démarche de ce type pourrait aussi
-s’inscrire dans un effort de recherche plus large. En croisant des données
-locales denses, des informations géographiques détaillées et des méthodes
-d’analyse plus avancées, on pourrait contribuer à améliorer la
-compréhension des îlots de chaleur urbains et, plus largement, des
-questions d’adaptation au changement climatique. Les outils développés
-pourraient être réutilisés ou adaptés par d’autres collectivités, ou encore
-servir de base à des travaux menés dans d’autres régions ou d’autres pays,
-ce qui favoriserait une science de l’ICU plus ouverte et cumulative.
+Beyond the operational aspect, this type of approach could also
+be part of a broader research effort. By combining dense local data,
+detailed geographic information, and more advanced analytical methods,
+we could contribute to improving our understanding of urban heat islands
+and, more broadly, issues related to climate change adaptation. The tools developed
+could be reused or adapted by other communities, or even
+serve as a basis for work carried out in other regions or countries,
+promoting a more open and cumulative science of UHI.
 
-Dans un contexte où les populations se concentrent de plus en plus en ville
-et où les épisodes de chaleur s’intensifient, disposer de méthodes
-robustes, partageables et réellement utiles serait une avancée importante.
-Sans prétendre répondre à tous les enjeux, ce type d’approche pourrait
-participer, à son échelle, à l’amélioration des connaissances et à la
-conception d’outils d’aide à la décision plus adaptés aux défis à venir.
+In a context where populations are increasingly concentrated in cities
+and heat waves are intensifying, having robust, shareable, and truly useful
+methods would be a significant step forward. Without claiming to address 
+all the issues, this type of approach could contribute, at its own level,
+to improving knowledge anddesigning decision-making tools that are better
+suited to the challenges ahead.
 """
 )
+
