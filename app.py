@@ -239,7 +239,7 @@ def create_UHI_overlay_image_cumulative(grid_lon, grid_lat, Z):
 
 
 
-##### Hottest days and completeness #####
+##### Hottest days and completness #####
 
 @st.cache_data
 def find_hottest_days(data, rural_station_list, n_days=10):
@@ -290,7 +290,7 @@ def calculate_completeness(data, period_start, period_end):
                     if station_name in rural_stations
                     else "Urban"
                 ),
-                "Taux_complétude": completeness,
+                "Completeness rate": completeness,
             }
         )
 
@@ -334,7 +334,7 @@ summer_stats = calculate_completeness(
     "2018-08-31",
 )
 summer_stats = summer_stats.sort_values(
-    "Taux_complétude",
+    "Completness rate",
     ascending=False,
 )
 
@@ -364,21 +364,21 @@ rural_presence = daily_presence[daily_presence.index.isin(rural_stations)]
 urban_presence = daily_presence[~daily_presence.index.isin(rural_stations)]
 
 
-##### Display: completeness tables #####
+##### Display: completness tables #####
 
 col_rural, col_urban = st.columns(2)
 
 with col_rural:
     st.subheader("Rural stations")
     st.dataframe(
-        rural_stats.style.format({"Completude_rate": "{:.1f}%"}),
+        rural_stats.style.format({"Completness_rate": "{:.1f}%"}),
         use_container_width=True,
     )
 
 with col_urban:
     st.subheader("Urban stations")
     st.dataframe(
-        urban_stats.style.format({"Completude_rate": "{:.1f}%"}),
+        urban_stats.style.format({"Completness_rate": "{:.1f}%"}),
         use_container_width=True,
     )
 
@@ -1361,6 +1361,7 @@ to improving knowledge anddesigning decision-making tools that are better
 suited to the challenges ahead.
 """
 )
+
 
 
 
