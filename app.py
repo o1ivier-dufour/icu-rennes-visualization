@@ -184,7 +184,7 @@ def create_uhi_overlay_image(grid_lon, grid_lat, Z):
     return img_uri, coords
 
 
-def create_UHI_overlay_image_cumulative(grid_lon, grid_lat, Z):
+def create_uhi_overlay_image_cumulative(grid_lon, grid_lat, Z):
     """
     Create a smoother UHI PNG overlay for cumulative maps
     (no isolines, soft colormap, 0–3 °C clipping).
@@ -1361,6 +1361,7 @@ to improving knowledge anddesigning decision-making tools that are better
 suited to the challenges ahead.
 """
 )
+
 
 
 
