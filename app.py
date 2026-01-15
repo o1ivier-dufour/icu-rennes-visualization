@@ -334,7 +334,7 @@ summer_stats = calculate_completeness(
     "2018-08-31",
 )
 summer_stats = summer_stats.sort_values(
-    "Completness rate",
+    "Completness_rate",
     ascending=False,
 )
 
@@ -1361,6 +1361,7 @@ to improving knowledge anddesigning decision-making tools that are better
 suited to the challenges ahead.
 """
 )
+
 
 
 
