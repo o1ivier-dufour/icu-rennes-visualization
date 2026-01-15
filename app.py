@@ -12,8 +12,8 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, WhiteKernel
 
 
-st.set_page_config(page_title="ICU Rennes", layout="wide")
-st.title("Analyse ICU Rennes 2018")
+st.set_page_config(page_title="UHI Rennes", layout="wide")
+st.title("Urban heat island analysis in Rennes for 2018")
 
 
 st.markdown(
@@ -23,7 +23,7 @@ When I saw the visualizations on the
 the GIF showing the evolution of the urban heat island throughout the
 day, I wondered what an interactive version of
 these maps would look like: something that would allow users to choose the time, zoom in, and
-explore the ICU's development in greater detail.
+explore the UHI's development in greater detail.
 
 I retrieved the hourly temperature measurements for 2018
 ([dataset](https://www.easydata.earth/#/public/metadata/260c9e6b-d9d9-4559-b6ee-6e10ef1f7a13)).
@@ -37,7 +37,7 @@ I divided the stations into two groups: urban and rural.
 
 In the
 [Dubreuil and al. (2020)](https://climatology.edpsciences.org/articles/climat/full_html/2020/01/climat20201706/climat20201706.html)
-study, the ICU is calculated based on a single rural station (*Melesse*).
+study, the UHI is calculated based on a single rural station (*Melesse*).
 
 For my part, I chose to use the average of several stations
 located on the edge of the densely urbanized area. This choice seemed
@@ -110,9 +110,9 @@ def m_to_deg(dx, dy, lon0=lon0, lat0=lat0):
     return lon, lat
 
 
-def create_icu_overlay_image(grid_lon, grid_lat, Z):
+def create_UHI_overlay_image(grid_lon, grid_lat, Z):
     """
-    Create a transparent ICU PNG with contours,
+    Create a transparent UHI PNG with contours,
     to be used as an overlay layer in Mapbox.
     """
     min_lon, max_lon = grid_lon.min(), grid_lon.max()
@@ -184,9 +184,9 @@ def create_icu_overlay_image(grid_lon, grid_lat, Z):
     return img_uri, coords
 
 
-def create_icu_overlay_image_cumulative(grid_lon, grid_lat, Z):
+def create_UHI_overlay_image_cumulative(grid_lon, grid_lat, Z):
     """
-    Create a smoother ICU PNG overlay for cumulative maps
+    Create a smoother UHI PNG overlay for cumulative maps
     (no isolines, soft colormap, 0–3 °C clipping).
     """
     min_lon, max_lon = grid_lon.min(), grid_lon.max()
@@ -286,9 +286,9 @@ def calculate_completeness(data, period_start, period_end):
             {
                 "Station": station_name,
                 "Type": (
-                    "Rurale"
+                    "Rural"
                     if station_name in rural_stations
-                    else "Urbaine"
+                    else "Urban"
                 ),
                 "Taux_complétude": completeness,
             }
@@ -310,7 +310,7 @@ def plot_presence_heatmap(presence_df, title, colorscale, col):
         color_continuous_scale=colorscale,
         zmin=0,
         zmax=1,
-        labels=dict(color="Présence"),
+        labels=dict(color="Presence"),
         aspect="auto",
     )
     fig.update_coloraxes(
@@ -318,7 +318,7 @@ def plot_presence_heatmap(presence_df, title, colorscale, col):
             title="Mesure",
             tickmode="array",
             tickvals=[0, 1],
-            ticktext=["Absente", "Présente"],
+            ticktext=["Absent", "Present"],
         )
     )
     fig.update_traces(xgap=1, ygap=1)
@@ -371,14 +371,14 @@ col_rural, col_urban = st.columns(2)
 with col_rural:
     st.subheader("Stations rurales")
     st.dataframe(
-        rural_stats.style.format({"Taux_complétude": "{:.1f}%"}),
+        rural_stats.style.format({"Completude_rate": "{:.1f}%"}),
         use_container_width=True,
     )
 
 with col_urban:
     st.subheader("Stations urbaines")
     st.dataframe(
-        urban_stats.style.format({"Taux_complétude": "{:.1f}%"}),
+        urban_stats.style.format({"Completude_rate": "{:.1f}%"}),
         use_container_width=True,
     )
 
@@ -387,19 +387,19 @@ with col_urban:
 col1, col2 = st.columns(2)
 plot_presence_heatmap(
     rural_presence,
-    title="Stations rurales",
+    title="Rural stations",
     colorscale=[[0, "white"], [1, "blue"]],
     col=col1,
 )
 plot_presence_heatmap(
     urban_presence,
-    title="Stations urbaines",
+    title="Urban Stations",
     colorscale=[[0, "white"], [1, "green"]],
     col=col2,
 )
 
 
-##### Temperature map and ICU map for hottest day #####
+##### Temperature map and UHI map for hottest day #####
 
 st.markdown(
     """
@@ -423,7 +423,7 @@ example_data = temp_long_geo[temp_long_geo["datetime"].dt.date == hottest_day]
 
 available_hours = sorted(example_data["datetime"].dt.hour.unique())
 selected_hour = st.slider(
-    "Heure de la journée",
+    "Time of day",
     min_value=int(min(available_hours)),
     max_value=int(max(available_hours)),
     value=14,
@@ -486,7 +486,7 @@ if len(urban_missing) > 0:
             showlegend=False,
             textposition="middle center",
             hovertext=(
-                urban_missing["station_name"] + " (donnée manquante)"
+                urban_missing["station_name"] + " (missing data)"
             ),
         )
     )
@@ -503,7 +503,7 @@ if len(rural_missing) > 0:
             showlegend=False,
             textposition="middle center",
             hovertext=(
-                rural_missing["station_name"] + " (donnée manquante)"
+                rural_missing["station_name"] + " (missing data)"
             ),
         )
     )
@@ -515,7 +515,7 @@ temp_map.update_layout(
     mapbox_style="open-street-map",
     mapbox=dict(center=dict(lat=avg_lat, lon=avg_lon), zoom=10),
     height=420,
-    title=f"Températures - {hottest_day} à {selected_hour:02d}h",
+    title=f"Temperatures - {hottest_day} à {selected_hour:02d}h",
     margin=dict(l=0, r=0, t=30, b=0),
     showlegend=False,
 )
@@ -526,21 +526,21 @@ with col_map:
 
 st.markdown(
     r"""
-Pour passer des températures brutes à l’effet urbain, je calcule pour
-chaque station *i* et chaque heure *t* :
+To convert raw temperatures to the urban effect, I calculate for
+each station *i* and each hour *t*:
 
 $$
-ICU_i(t) = T_i(t) - \overline{T}_{\text{rural}}(t)
+UHI_i(t) = T_i(t) - \overline{T}_{\text{rural}}(t)
 $$
 
-où $\overline{T}_{\text{rural}}(t)$ est la moyenne des températures des
-stations rurales à l’heure *t*.
+where $\overline{T}_{\text{rural}}(t)$ is the average temperature of
+rural stations at time *t*.
 
-Cette première carte d’ICU reprend la logique de la carte de température
-ci-dessus, mais appliquée aux valeurs d’ICU.  
-Il ne s’agit pas encore d’une représentation continue ; c’est simplement
-une étape intermédiaire avant l’interpolation, que l’on va réaliser juste
-après.
+This first UHI map follows the logic of the temperature map
+above, but applied to UHI values.  
+This is not yet a continuous representation; it is simply
+an intermediate step before interpolation, which we will perform immediately
+afterwards.
 """
 )
 
@@ -550,30 +550,30 @@ rural_with_temp = stations_with_temp[
 if len(rural_with_temp) > 0:
     rural_ref_temp = rural_with_temp["temperature"].mean()
 
-    stations_with_icu = stations_with_temp.copy()
-    stations_with_icu["ICU"] = (
-        stations_with_icu["temperature"] - rural_ref_temp
+    stations_with_uhi = stations_with_temp.copy()
+    stations_with_uhi["UHI"] = (
+        stations_with_uhi["temperature"] - rural_ref_temp
     )
 
-    icu_map = go.Figure()
+    uhi_map = go.Figure()
 
-    icu_map.add_trace(
+    uhi_map.add_trace(
         go.Scattermapbox(
-            lat=stations_with_icu["lat"],
-            lon=stations_with_icu["long"],
+            lat=stations_with_uhi["lat"],
+            lon=stations_with_uhi["long"],
             mode="markers",
             marker=dict(
                 size=15,
-                color=stations_with_icu["ICU"],
+                color=stations_with_uhi["UHI"],
                 colorscale="RdBu_r",
                 showscale=True,
-                colorbar=dict(title="ICU (°C)"),
+                colorbar=dict(title="UHI (°C)"),
             ),
             showlegend=False,
             text=(
-                stations_with_icu["station_name"]
-                + ": ICU "
-                + stations_with_icu["ICU"].round(2).astype(str)
+                stations_with_uhi["station_name"]
+                + ": UHI "
+                + stations_with_uhi["UHI"].round(2).astype(str)
                 + "°C"
             ),
             hovertemplate="<b>%{text}</b><extra></extra>",
@@ -581,7 +581,7 @@ if len(rural_with_temp) > 0:
     )
 
     if len(urban_missing) > 0:
-        icu_map.add_trace(
+        uhi_map.add_trace(
             go.Scattermapbox(
                 lat=urban_missing["lat"],
                 lon=urban_missing["long"],
@@ -591,13 +591,13 @@ if len(rural_with_temp) > 0:
                 showlegend=False,
                 textposition="middle center",
                 hovertext=(
-                    urban_missing["station_name"] + " (donnée manquante)"
+                    urban_missing["station_name"] + " (missing data)"
                 ),
             )
         )
 
     if len(rural_missing) > 0:
-        icu_map.add_trace(
+        uhi_map.add_trace(
             go.Scattermapbox(
                 lat=rural_missing["lat"],
                 lon=rural_missing["long"],
@@ -607,30 +607,30 @@ if len(rural_with_temp) > 0:
                 showlegend=False,
                 textposition="middle center",
                 hovertext=(
-                    rural_missing["station_name"] + " (donnée manquante)"
+                    rural_missing["station_name"] + " (missing data)"
                 ),
             )
         )
 
-    icu_map.update_layout(
+    uhi_map.update_layout(
         mapbox_style="open-street-map",
         mapbox=dict(center=dict(lat=avg_lat, lon=avg_lon), zoom=10),
         height=420,
-        title=f"ICU - {hottest_day} à {selected_hour:02d}h",
+        title=f"UHI - {hottest_day} à {selected_hour:02d}h",
         margin=dict(l=0, r=0, t=30, b=0),
         showlegend=False,
     )
 
-    col_icu, _ = st.columns([3, 1])
-    with col_icu:
-        st.plotly_chart(icu_map, use_container_width=True)
+    col_uhi, _ = st.columns([3, 1])
+    with col_uhi:
+        st.plotly_chart(uhi_map, use_container_width=True)
 
 
-##### RBF ICU animation #####
+##### RBF UHI animation #####
 
 st.markdown(
     r"""
-To obtain a more continuous representation of the ICU in
+To obtain a more continuous representation of the UHI in
 space, I used scikit-learn interpolation based on a
 Gaussian Process with an RBF kernel. This approach produces a smoothed field,
 where the influence of a station decreases with distance. The kernel used
@@ -640,9 +640,9 @@ $$
 k(x,x') = \exp\!\left(-\frac{\|x - x'\|^2}{2\ell^2}\right) + \sigma_n^2
 $$
 
-Here, $x$ denotes the position of a station (where the ICU is measured), and $x'$
-the position where we want to estimate the ICU on the interpolated grid. The
-parameter $\ell$ controls the distance over which the ICU varies, and
+Here, $x$ denotes the position of a station (where the UHI is measured), and $x'$
+the position where we want to estimate the UHI on the interpolated grid. The
+parameter $\ell$ controls the distance over which the UHI varies, and
 $\sigma_n^2$ adds a slight noise to account for local differences
 between stations.
 """
@@ -671,10 +671,10 @@ capture local variations in detail.
 @st.cache_data
 def compute_all_frames():
     """
-    Build ICU interpolation frames for each hour of the hottest day,
+    Build UHI interpolation frames for each hour of the hottest day,
     and prepare Mapbox-ready image overlays.
     """
-    icu_frames = []
+    uhi_frames = []
     timestamps = sorted(example_data["datetime"].unique())
 
     urban_df = stations[stations["station_name"].isin(urban_stations)]
@@ -698,18 +698,18 @@ def compute_all_frames():
             continue
 
         rural_ref_temp = rural_temps.mean()
-        time_slice["ICU"] = time_slice["temperature"] - rural_ref_temp
+        time_slice["UHI"] = time_slice["temperature"] - rural_ref_temp
 
-        slice_with_icu = time_slice.dropna(subset=["ICU"]).copy()
-        if len(slice_with_icu) < 3:
+        slice_with_uhi = time_slice.dropna(subset=["UHI"]).copy()
+        if len(slice_with_uhi) < 3:
             continue
 
         dx, dy = deg_to_m(
-            slice_with_icu["long"].values,
-            slice_with_icu["lat"].values,
+            slice_with_uhi["long"].values,
+            slice_with_uhi["lat"].values,
         )
         X = np.column_stack([dx, dy])
-        y = slice_with_icu["ICU"].values
+        y = slice_with_uhi["UHI"].values
 
         kernel = RBF(length_scale=500.0) + WhiteKernel(noise_level=0.05)
         gpr = GaussianProcessRegressor(
@@ -729,16 +729,16 @@ def compute_all_frames():
         Z = y_pred.reshape(gx.shape)
 
         grid_lon, grid_lat = m_to_deg(gx, gy)
-        img_uri, img_coords = create_icu_overlay_image(
+        img_uri, img_coords = create_uhi_overlay_image(
             grid_lon,
             grid_lat,
             Z,
         )
 
-        icu_frames.append(
+        uhi_frames.append(
             dict(
                 instant=timestamp,
-                slice_ok=slice_with_icu,
+                slice_ok=slice_with_uhi,
                 img_uri=img_uri,
                 img_coords=img_coords,
                 grid_lon=grid_lon,
@@ -747,34 +747,34 @@ def compute_all_frames():
             )
         )
 
-    return icu_frames
+    return uhi_frames
 
 
-icu_frames = compute_all_frames()
+uhi_frames = compute_all_frames()
 
-first_frame = icu_frames[0]
+first_frame = uhi_frames[0]
 
 urban_df = stations[stations["station_name"].isin(urban_stations)]
 center_lat = float(urban_df["lat"].mean())
 center_lon = float(urban_df["long"].mean())
 
-icu_anim = go.Figure()
+uhi_anim = go.Figure()
 
-icu_anim.add_trace(
+uhi_anim.add_trace(
     go.Scattermapbox(
         lat=first_frame["slice_ok"]["lat"],
         lon=first_frame["slice_ok"]["long"],
         mode="markers",
         marker=dict(size=15, color="#2c3e50"),
         text=first_frame["slice_ok"]["station_name"],
-        customdata=first_frame["slice_ok"]["ICU"],
-        hovertemplate="<b>%{text}</b><br>ICU: %{customdata:.2f}°C<extra></extra>",
-        name="Stations ICU",
+        customdata=first_frame["slice_ok"]["UHI"],
+        hovertemplate="<b>%{text}</b><br>UHI: %{customdata:.2f}°C<extra></extra>",
+        name="Stations UHI",
     )
 )
 
 plotly_frames = []
-for frame_data in icu_frames:
+for frame_data in uhi_frames:
     plotly_frames.append(
         go.Frame(
             data=[
@@ -784,10 +784,10 @@ for frame_data in icu_frames:
                     mode="markers",
                     marker=dict(size=15, color="#2c3e50"),
                     text=frame_data["slice_ok"]["station_name"],
-                    customdata=frame_data["slice_ok"]["ICU"],
+                    customdata=frame_data["slice_ok"]["UHI"],
                     hovertemplate=(
                         "<b>%{text}</b><br>"
-                        "ICU: %{customdata:.2f}°C<extra></extra>"
+                        "UHI: %{customdata:.2f}°C<extra></extra>"
                     ),
                 )
             ],
@@ -803,7 +803,7 @@ for frame_data in icu_frames:
                     ]
                 ),
                 title=(
-                    "ICU interpolé – "
+                    "Interpolate UHI – "
                     f"{frame_data['instant'].strftime('%d/%m/%Y %Hh%M')}"
                 ),
             ),
@@ -811,12 +811,12 @@ for frame_data in icu_frames:
         )
     )
 
-icu_anim.frames = plotly_frames
+uhi_anim.frames = plotly_frames
 
 time_slider = [
     dict(
         active=0,
-        currentvalue=dict(prefix="<b>Heure : </b>", font=dict(size=16)),
+        currentvalue=dict(prefix="<b>Hour : </b>", font=dict(size=16)),
         pad=dict(t=60, b=10),
         len=0.85,
         x=0.12,
@@ -834,7 +834,7 @@ time_slider = [
                 label=f"{frame['instant'].hour:02d}h",
                 method="animate",
             )
-            for frame in icu_frames
+            for frame in uhi_frames
         ],
     )
 ]
@@ -879,7 +879,7 @@ animation_buttons = [
     )
 ]
 
-icu_anim.update_layout(
+uhi_anim.update_layout(
     mapbox=dict(
         style="open-street-map",
         center=dict(lat=center_lat, lon=center_lon),
@@ -899,7 +899,7 @@ icu_anim.update_layout(
     margin=dict(l=10, r=10, t=90, b=60),
     title=dict(
         text=(
-            "<b>Îlots de chaleur urbains – Rennes</b>"
+            "<b>Urban Heat Islands – Rennes</b>"
             f"<br><sub>{hottest_day}</sub>"
         ),
         x=0.5,
@@ -910,10 +910,10 @@ icu_anim.update_layout(
 
 col_anim, _ = st.columns([3, 1])
 with col_anim:
-    st.plotly_chart(icu_anim, use_container_width=True)
+    st.plotly_chart(uhi_anim, use_container_width=True)
 
 
-##### Cumulative ICU maps (day / night) #####
+##### Cumulative UHI maps (day / night) #####
 
 st.markdown(
     r"""
@@ -928,7 +928,7 @@ are local factors such as ventilation and urban morphology,
  which can also shift the maxima.
 
 To identify more persistent areas, I first separated
-daytime and nighttime hours, then chose to combine the ICUs interpolated
+daytime and nighttime hours, then chose to combine the UHIs interpolated
 over the ten hottest days. Ten days seemed to me to be a good order of
 magnitude: enough to smooth out day-to-day variations without
 going too far toward an average that is too broad or diluted over time.
@@ -937,12 +937,12 @@ For each point $x$ on the grid, I then calculate an average over
 all the selected time points:
 
 $$
-ICU_{\text{moy}}(x) = \frac{1}{N} \sum_{t=1}^{N} ICU_t(x)
+UHI_{\text{moy}}(x) = \frac{1}{N} \sum_{t=1}^{N} UHI_t(x)
 $$
 
-where $ICU_t(x)$ is the ICU interpolated at point $x$ at time $t$, and $N$ is
+where $UHI_t(x)$ is the UHI interpolated at point $x$ at time $t$, and $N$ is
 the total number of hours considered (day or night) on the hottest days.
-This average highlights areas where the ICU is both high and recurrent,
+This average highlights areas where the UHI is both high and recurrent,
 in other words, typical hot spots during the day and night..
 
 These maps primarily provide a clear visual snapshot, which helps identify
@@ -974,7 +974,7 @@ night_hours = list(range(0, 6))
 
 def interpolate_daily_data(valid_data, urban_bbox):
     """
-    Interpolate ICU values at a given time over the
+    Interpolate UHI values at a given time over the
     urban bounding box using a Gaussian Process.
     """
     dx, dy = deg_to_m(
@@ -982,7 +982,7 @@ def interpolate_daily_data(valid_data, urban_bbox):
         valid_data["lat"].values,
     )
     X = np.column_stack([dx, dy])
-    y = valid_data["ICU"].values
+    y = valid_data["UHI"].values
 
     kernel = RBF(length_scale=800.0) + WhiteKernel(noise_level=0.1)
     gpr = GaussianProcessRegressor(
@@ -1021,7 +1021,7 @@ def compute_spatial_cumulative_means(
     night_hours,
 ):
     """
-    Compute mean ICU fields for day and night on the n hottest days,
+    Compute mean UHI fields for day and night on the n hottest days,
     by aggregating all selected hourly interpolations.
     """
     day_cumulative = None
@@ -1057,11 +1057,11 @@ def compute_spatial_cumulative_means(
                 continue
 
             day_rural_ref_temp = day_rural_temps.mean()
-            day_data["ICU"] = (
+            day_data["UHI"] = (
                 day_data["temperature"] - day_rural_ref_temp
             )
 
-            day_valid_data = day_data.dropna(subset=["ICU"]).copy()
+            day_valid_data = day_data.dropna(subset=["UHI"]).copy()
             if len(day_valid_data) < 3:
                 continue
 
@@ -1096,11 +1096,11 @@ def compute_spatial_cumulative_means(
                 continue
 
             night_rural_ref_temp = night_rural_temps.mean()
-            night_data["ICU"] = (
+            night_data["UHI"] = (
                 night_data["temperature"] - night_rural_ref_temp
             )
 
-            night_valid_data = night_data.dropna(subset=["ICU"]).copy()
+            night_valid_data = night_data.dropna(subset=["UHI"]).copy()
             if len(night_valid_data) < 3:
                 continue
 
@@ -1139,7 +1139,7 @@ def compute_spatial_cumulative_means(
     )
 
 
-with st.spinner("Calcul des cumulatifs sur plusieurs heures..."):
+with st.spinner("Calculation of cumulative totals over several hours..."):
     (
         day_cumulative_mean,
         night_cumulative_mean,
@@ -1168,12 +1168,12 @@ def plot_cumulative_overlay(
     center,
 ):
     """
-    Plot a mean ICU field as a Mapbox overlay with station markers
+    Plot a mean UHI field as a Mapbox overlay with station markers
     and a separate colorbar.
     """
     Z_vis = Z_mean
 
-    img_uri, img_coords = create_icu_overlay_image_cumulative(
+    img_uri, img_coords = create_uhi_overlay_image_cumulative(
         grid_lon,
         grid_lat,
         Z_vis,
@@ -1214,7 +1214,7 @@ def plot_cumulative_overlay(
             mode="markers",
             marker=dict(size=8, color="blue", opacity=0.7),
             text=stations_df["station_name"],
-            name="Stations urbaines",
+            name="Urban stations",
             hoverinfo="text",
         )
     )
@@ -1229,7 +1229,7 @@ def plot_cumulative_overlay(
             opacity=0.0,
             hoverinfo="skip",
             colorbar=dict(
-                title=dict(text="ICU moyen (°C)", side="right"),
+                title=dict(text="Average UHI (°C)", side="right"),
                 x=1.02,
                 xanchor="left",
                 len=0.8,
@@ -1246,8 +1246,8 @@ def plot_cumulative_overlay(
 
 
 day_title = (
-    f"ICU moyen – JOUR (heures {min(day_hours)}–{max(day_hours)}h, "
-    f"{len(hottest_days)} jours les plus chauds)"
+    f"Average UHI – DAY (heures {min(day_hours)}–{max(day_hours)}h, "
+    f"{len(hottest_days)} hottest days)"
 )
 plot_cumulative_overlay(
     day_cumulative_mean,
@@ -1260,9 +1260,9 @@ plot_cumulative_overlay(
 
 st.markdown(
     """
-**Analysis – Night ICU**
+**Analysis – Night UHI**
 
-At night, the ICU increases significantly, which is consistent with what
+At night, the UHI increases significantly, which is consistent with what
 is described in the literature—notably the study by
 [Dubreuil and al. (2020)](https://climatology.edpsciences.org/articles/climat/full_html/2020/01/climat20201706/climat20201706.html)
 on summer nights in Rennes. Once solar radiation stops,
@@ -1286,8 +1286,8 @@ given the number of stations available.
 )
 
 night_title = (
-    f"ICU moyen – NUIT (heures {min(night_hours)}–{max(night_hours)}h, "
-    f"{len(hottest_days)} jours les plus chauds)"
+    f"Average UHI – NIGHT (hours {min(night_hours)}–{max(night_hours)}h, "
+    f"{len(hottest_days)} hottest days)"
 )
 plot_cumulative_overlay(
     night_cumulative_mean,
@@ -1298,9 +1298,7 @@ plot_cumulative_overlay(
     urban_center,
 )
 
-# --------------------------------------------------------------------
-# Conclusion markdown (texte inchangé)
-# --------------------------------------------------------------------
+
 st.markdown(
     """
 **Conclusion**
@@ -1325,7 +1323,7 @@ to analyze more detailed combinations of factors:
 for example, identifying the most unfavorable situations (low wind,
 clear skies, low humidity, limited vegetation), or understanding how
 the characteristics of buildings and vegetation actually structure
-the ICU. These maps could also be cross-referenced with other sources: broader
+the UHI. These maps could also be cross-referenced with other sources: broader
 meteorological fields, satellite imagery (vegetation indices, thermal), or
 classifications of buildings and vegetation derived from IGN data.
 
@@ -1363,4 +1361,5 @@ to improving knowledge anddesigning decision-making tools that are better
 suited to the challenges ahead.
 """
 )
+
 
