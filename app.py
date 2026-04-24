@@ -269,7 +269,7 @@ def calculate_completeness(data, period_start, period_end):
     """
     Compute hourly data completeness per station over a given period.
     """
-    full_period = pd.date_range(start=period_start, end=period_end, freq="H")
+    full_period = pd.date_range(start=period_start, end=period_end, freq="h")
     total_hours = len(full_period)
     results = []
 
